@@ -1,37 +1,29 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { Stack } from "expo-router";
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 
 SplashScreen.preventAutoHideAsync();
 
-export const unstable_settings = {
-  // Ensure any route can link back to `/`
-  initialRouteName: "home",
-};
-
 const Layout = () => {
-  const [fontsLoaded] = useFonts({
+  const [fontsLoaded, fontError] = useFonts({
     DMBold: require("../assets/fonts/DMSans-Bold.ttf"),
     DMMedium: require("../assets/fonts/DMSans-Medium.ttf"),
     DMRegular: require("../assets/fonts/DMSans-Regular.ttf"),
   });
 
-  const onLayoutRootView = useCallback(async () => {
-    if (fontsLoaded) {
-      await SplashScreen.hideAsync();
+  useEffect(() => {
+    if (fontsLoaded || fontError) {
+      // Hide the splash screen after the fonts have loaded (or an error was returned) and the UI is ready.
+      SplashScreen.hideAsync();
     }
-  }, [fontsLoaded]);
+  }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded) {
+  if (!fontsLoaded && !fontError) {
     return null;
   }
 
-  return (
-    <Stack initialRouteName="home" onLayout={onLayoutRootView}>
-      <Stack.Screen name="home" />
-    </Stack>
-  );
+  return <Stack />;
 };
 
 export default Layout;
